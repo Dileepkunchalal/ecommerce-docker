@@ -1,10 +1,10 @@
 <?php
 
-$host = "mysql-pkvo.railway.internal";
+$host = "turntable.proxy.rlwy.net";
+$port = "20568";
 $dbname = "railway";
 $user = "root";
 $pass = "xoLasFNtaWixgFxyiZzoFiXNEEWFNzGK";
-$port = "3306";
 
 try {
 

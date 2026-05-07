@@ -2,22 +2,42 @@
 session_start();
 include 'db.php';
 
-$message = "";
+$error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
 
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email=? AND role='admin'");
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+
+    $stmt = $conn->prepare("
+        SELECT * FROM users
+        WHERE email=? AND role='admin'
+    ");
+
     $stmt->execute([$email]);
+
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($admin && password_verify($password, $admin['password'])) {
-        $_SESSION['admin'] = $admin['id'];
-        header("Location: admin.php");
-        exit;
+    if ($admin) {
+
+        // DEBUG
+        // echo $admin['password'];
+
+        if (password_verify($password, $admin['password'])) {
+
+            $_SESSION['admin'] = $admin['id'];
+
+            header("Location: admin.php");
+            exit;
+
+        } else {
+
+            $error = "❌ Wrong password";
+        }
+
     } else {
-        $message = "❌ Invalid admin credentials";
+
+        $error = "❌ Admin not found";
     }
 }
 ?>
@@ -26,71 +46,101 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
     <title>Admin Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
 
     <style>
-        body {
-            background: linear-gradient(135deg, #212529, #343a40);
+
+        body{
+            margin:0;
+            font-family:Arial;
+            background:linear-gradient(135deg,#0d6efd,#6610f2);
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
         }
 
-        .auth-container {
-            max-width: 350px;
-            margin: 100px auto;
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            text-align: center;
+        .box{
+            background:white;
+            width:350px;
+            padding:35px;
+            border-radius:15px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.2);
         }
 
-        .auth-container h2 {
-            margin-bottom: 15px;
+        h2{
+            text-align:center;
+            margin-bottom:25px;
         }
 
-        .auth-container input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px solid #ccc;
+        input{
+            width:100%;
+            padding:12px;
+            margin-bottom:15px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            font-size:16px;
         }
 
-        .auth-container button {
-            width: 100%;
-            padding: 10px;
-            background: #212529;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+        button{
+            width:100%;
+            padding:12px;
+            border:none;
+            border-radius:8px;
+            background:#0d6efd;
+            color:white;
+            font-size:16px;
+            cursor:pointer;
         }
 
-        .auth-container button:hover {
-            background: #000;
+        button:hover{
+            background:#0b5ed7;
         }
 
-        .message {
-            color: red;
-            font-size: 14px;
+        .error{
+            text-align:center;
+            margin-bottom:15px;
+            color:red;
+            font-weight:bold;
         }
+
     </style>
+
 </head>
 
 <body>
 
-<div class="auth-container">
+<div class="box">
+
     <h2>👑 Admin Login</h2>
 
-    <?php if ($message): ?>
-        <div class="message"><?= $message ?></div>
+    <?php if($error): ?>
+        <div class="error">
+            <?= $error ?>
+        </div>
     <?php endif; ?>
 
     <form method="POST">
-        <input type="email" name="email" placeholder="Admin Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button>Login</button>
+
+        <input
+            type="email"
+            name="email"
+            placeholder="Admin Email"
+            required
+        >
+
+        <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            required
+        >
+
+        <button type="submit">
+            Login
+        </button>
+
     </form>
+
 </div>
 
 </body>

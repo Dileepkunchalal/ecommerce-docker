@@ -227,12 +227,28 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <?php foreach($products as $product): ?>
 
+    <?php
+
+        $image = $product['image'];
+
+        if(str_starts_with($image, 'http')) {
+
+            $imgPath = $image;
+
+        } else {
+
+            $imgPath = 'uploads/' . $image;
+
+        }
+
+    ?>
+
     <div class="card">
 
         <a href="product.php?id=<?= $product['id'] ?>">
 
             <img 
-                src="<?= htmlspecialchars($product['image']) ?>" 
+                src="<?= htmlspecialchars($imgPath) ?>" 
                 alt="Product"
             >
 

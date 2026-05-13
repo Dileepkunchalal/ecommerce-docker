@@ -1,7 +1,6 @@
 <?php
 session_start();
-include 'includes/db.php';
-
+include 'db.php';
 $stmt = $conn->query("SELECT * FROM products ORDER BY id DESC");
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

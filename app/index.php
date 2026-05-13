@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db.php';
+
 $stmt = $conn->query("SELECT * FROM products ORDER BY id DESC");
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -18,7 +19,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             margin:0;
             padding:0;
             box-sizing:border-box;
-            font-family:Arial, sans-serif;
+            font-family:Arial,sans-serif;
         }
 
         body{
@@ -32,33 +33,61 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             display:flex;
             justify-content:space-between;
             align-items:center;
+            flex-wrap:wrap;
         }
 
         header h1{
-            font-size:28px;
+            font-size:30px;
+        }
+
+        nav{
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
         }
 
         nav a{
             color:white;
             text-decoration:none;
-            margin-left:20px;
             font-weight:bold;
         }
 
         .hero{
             background:linear-gradient(135deg,#2563eb,#7c3aed);
             color:white;
-            padding:60px 20px;
             text-align:center;
+            padding:70px 20px;
         }
 
         .hero h2{
-            font-size:42px;
-            margin-bottom:10px;
+            font-size:45px;
+            margin-bottom:15px;
         }
 
         .hero p{
-            font-size:18px;
+            font-size:20px;
+        }
+
+        .search-box{
+            padding:30px;
+            text-align:center;
+        }
+
+        .search-box input{
+            width:300px;
+            padding:12px;
+            border-radius:8px 0 0 8px;
+            border:1px solid #ccc;
+            outline:none;
+        }
+
+        .search-box button{
+            padding:12px 20px;
+            border:none;
+            background:#2563eb;
+            color:white;
+            border-radius:0 8px 8px 0;
+            cursor:pointer;
         }
 
         .products{
@@ -82,7 +111,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .card img{
             width:100%;
-            height:220px;
+            height:250px;
             object-fit:cover;
         }
 
@@ -92,12 +121,16 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .card h3{
             margin-bottom:10px;
-            font-size:22px;
+        }
+
+        .card h3 a{
+            text-decoration:none;
+            color:#111827;
         }
 
         .price{
             color:green;
-            font-size:22px;
+            font-size:28px;
             font-weight:bold;
             margin-bottom:15px;
         }
@@ -105,14 +138,13 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .btn{
             display:block;
             width:100%;
+            text-align:center;
             padding:12px;
             background:#2563eb;
             color:white;
-            text-align:center;
             text-decoration:none;
             border-radius:10px;
             font-weight:bold;
-            transition:0.3s;
         }
 
         .btn:hover{
@@ -128,6 +160,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
     </style>
+
 </head>
 
 <body>
@@ -137,18 +170,27 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h1>🛒 My Store</h1>
 
     <nav>
+
         <a href="index.php">Home</a>
+
         <a href="cart.php">Cart</a>
 
         <?php if(isset($_SESSION['user'])): ?>
+
             <a href="orders.php">Orders</a>
+
             <a href="logout.php">Logout</a>
+
         <?php else: ?>
+
             <a href="login.php">Login</a>
+
             <a href="register.php">Register</a>
+
         <?php endif; ?>
 
         <a href="admin_login.php">Admin</a>
+
     </nav>
 
 </header>
@@ -158,10 +200,28 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h2>Welcome to My Ecommerce Store</h2>
 
     <p>
-        Buy latest gadgets, fashion, accessories and more.
+        Buy latest gadgets, fashion, electronics and more.
     </p>
 
 </section>
+
+<div class="search-box">
+
+    <form method="GET">
+
+        <input 
+            type="text" 
+            name="search" 
+            placeholder="Search products..."
+        >
+
+        <button>
+            🔍
+        </button>
+
+    </form>
+
+</div>
 
 <section class="products">
 
@@ -169,19 +229,31 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="card">
 
-        <img 
-            src="<?= htmlspecialchars($product['image']) ?>" 
-            alt="Product"
-        >
+        <a href="product.php?id=<?= $product['id'] ?>">
+
+            <img 
+                src="<?= htmlspecialchars($product['image']) ?>" 
+                alt="Product"
+            >
+
+        </a>
 
         <div class="card-content">
 
             <h3>
-                <?= htmlspecialchars($product['name']) ?>
+
+                <a href="product.php?id=<?= $product['id'] ?>">
+
+                    <?= htmlspecialchars($product['name']) ?>
+
+                </a>
+
             </h3>
 
             <div class="price">
+
                 ₹<?= number_format($product['price'],2) ?>
+
             </div>
 
             <a 

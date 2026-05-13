@@ -152,7 +152,7 @@ if (isset($_SESSION['cart'])) {
     <?php foreach($products as $p): ?>
         <div class="product">
             
-            <img src="uploads/<?= htmlspecialchars($p['image']) ?>" alt="Product">
+            <img src="<?= htmlspecialchars($p['image']) ?>" alt="Product"> alt="Product">
 
             <h3><?= htmlspecialchars($p['name']) ?></h3>
 

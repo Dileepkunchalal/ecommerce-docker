@@ -1,177 +1,210 @@
 <?php
 session_start();
-include 'db.php';
+include 'includes/db.php';
 
-// Search
-$search = $_GET['search'] ?? '';
-
-// Fetch products
-$stmt = $conn->prepare("SELECT * FROM products WHERE name LIKE ?");
-$stmt->execute(["%$search%"]);
+$stmt = $conn->query("SELECT * FROM products ORDER BY id DESC");
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Get username
-function getUserName($user_id, $conn) {
-    $stmt = $conn->prepare("SELECT name FROM users WHERE id=?");
-    $stmt->execute([$user_id]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $user ? $user['name'] : "User";
-}
-
-// Cart count
-$count = 0;
-if (isset($_SESSION['cart'])) {
-    $count = array_sum($_SESSION['cart']);
-}
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Store</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <title>My Store</title>
 
     <style>
-        .navbar {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            background: linear-gradient(90deg, #0d6efd, #4dabf7);
-            padding: 15px 20px;
-            color: white;
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, sans-serif;
         }
 
-        .nav-center {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
+        body{
+            background:#f5f5f5;
         }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        header{
+            background:#111827;
+            color:white;
+            padding:20px 40px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
         }
 
-        .brand h2 {
-            margin: 0;
+        header h1{
+            font-size:28px;
         }
 
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        nav a{
+            color:white;
+            text-decoration:none;
+            margin-left:20px;
+            font-weight:bold;
         }
 
-        .nav-right a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
+        .hero{
+            background:linear-gradient(135deg,#2563eb,#7c3aed);
+            color:white;
+            padding:60px 20px;
+            text-align:center;
         }
 
-        .welcome {
-            font-size: 14px;
+        .hero h2{
+            font-size:42px;
+            margin-bottom:10px;
         }
 
-        .badge {
-            background: red;
-            padding: 2px 6px;
-            border-radius: 50%;
-            font-size: 12px;
-            color: white;
-            margin-left: 4px;
+        .hero p{
+            font-size:18px;
         }
+
+        .products{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+            gap:25px;
+            padding:40px;
+        }
+
+        .card{
+            background:white;
+            border-radius:15px;
+            overflow:hidden;
+            box-shadow:0 5px 15px rgba(0,0,0,0.1);
+            transition:0.3s;
+        }
+
+        .card:hover{
+            transform:translateY(-5px);
+        }
+
+        .card img{
+            width:100%;
+            height:220px;
+            object-fit:cover;
+        }
+
+        .card-content{
+            padding:20px;
+        }
+
+        .card h3{
+            margin-bottom:10px;
+            font-size:22px;
+        }
+
+        .price{
+            color:green;
+            font-size:22px;
+            font-weight:bold;
+            margin-bottom:15px;
+        }
+
+        .btn{
+            display:block;
+            width:100%;
+            padding:12px;
+            background:#2563eb;
+            color:white;
+            text-align:center;
+            text-decoration:none;
+            border-radius:10px;
+            font-weight:bold;
+            transition:0.3s;
+        }
+
+        .btn:hover{
+            background:#1d4ed8;
+        }
+
+        footer{
+            background:#111827;
+            color:white;
+            text-align:center;
+            padding:20px;
+            margin-top:40px;
+        }
+
     </style>
 </head>
 
 <body>
 
-<!-- 🔵 NAVBAR -->
-<div class="navbar">
+<header>
 
-    <!-- CENTER -->
-    <div class="nav-center">
-        <div class="brand">
-            <span style="font-size:22px;">🛍</span>
-            <h2>My Store</h2>
-        </div>
-    </div>
+    <h1>🛒 My Store</h1>
 
-    <!-- RIGHT -->
-    <div class="nav-right">
+    <nav>
+        <a href="index.php">Home</a>
+        <a href="cart.php">Cart</a>
 
         <?php if(isset($_SESSION['user'])): ?>
-            
-            <span class="welcome">
-                👋 <?= htmlspecialchars(getUserName($_SESSION['user'], $conn)) ?>
-            </span>
-
-            <!-- Orders -->
-            <a href="orders.php">📦 Orders</a>
-
-            <!-- Cart with badge -->
-            <a href="cart.php">
-                🛒 Cart 
-                <span class="badge"><?= $count ?></span>
-            </a>
-
-            <!-- Logout -->
+            <a href="orders.php">Orders</a>
             <a href="logout.php">Logout</a>
-
         <?php else: ?>
-
             <a href="login.php">Login</a>
             <a href="register.php">Register</a>
-
         <?php endif; ?>
 
-    </div>
+        <a href="admin_login.php">Admin</a>
+    </nav>
 
-</div>
+</header>
 
-<!-- 🔍 SEARCH -->
-<div class="search-box">
-    <form method="GET">
-        <input 
-            type="text" 
-            name="search" 
-            placeholder="Search products..." 
-            value="<?= htmlspecialchars($search) ?>"
+<section class="hero">
+
+    <h2>Welcome to My Ecommerce Store</h2>
+
+    <p>
+        Buy latest gadgets, fashion, accessories and more.
+    </p>
+
+</section>
+
+<section class="products">
+
+<?php foreach($products as $product): ?>
+
+    <div class="card">
+
+        <img 
+            src="<?= htmlspecialchars($product['image']) ?>" 
+            alt="Product"
         >
-        <button>🔍</button>
-    </form>
-</div>
 
-<!-- 🛍️ PRODUCTS -->
-<div class="products">
+        <div class="card-content">
 
-<?php if (!empty($products)): ?>
+            <h3>
+                <?= htmlspecialchars($product['name']) ?>
+            </h3>
 
-    <?php foreach($products as $p): ?>
-        <div class="product">
-            
-            <img src="<?= htmlspecialchars($p['image']) ?>" alt="Product"> alt="Product">
+            <div class="price">
+                ₹<?= number_format($product['price'],2) ?>
+            </div>
 
-            <h3><?= htmlspecialchars($p['name']) ?></h3>
-
-            <p>₹<?= htmlspecialchars($p['price']) ?></p>
-
-            <a href="add_to_cart.php?id=<?= $p['id'] ?>">
-                <button>Add to Cart</button>
+            <a 
+                href="add_to_cart.php?id=<?= $product['id'] ?>" 
+                class="btn"
+            >
+                Add to Cart
             </a>
 
         </div>
-    <?php endforeach; ?>
 
-<?php else: ?>
+    </div>
 
-    <p style="text-align:center; width:100%;">No products found</p>
+<?php endforeach; ?>
 
-<?php endif; ?>
+</section>
 
-</div>
+<footer>
+
+    © <?= date('Y') ?> My Store | Built by Dileep 🚀
+
+</footer>
 
 </body>
 </html>
